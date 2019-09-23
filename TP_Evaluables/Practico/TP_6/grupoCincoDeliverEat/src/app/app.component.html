@@ -1,2 +1,264 @@
-<h1>DeliverEat!</h1>
-<button mat-button>CLick!  </button>
+<h1 (click)="click()">DeliverEat!</h1>
+
+<div *ngIf="!aCompra">
+  <h6>
+    Elegí alguno de nuestros comercios o decidite por otro
+  </h6>
+
+  <mat-button-toggle-group #comercioAdheridoGroup="matButtonToggleGroup">
+    <mat-button-toggle value="true">Comercio adherido</mat-button-toggle>
+    <mat-button-toggle value="false">Comercio no adherido</mat-button-toggle>
+  </mat-button-toggle-group>
+  <div *ngIf="comercioAdheridoGroup.value == 'true'">
+    <div class="row">
+      <span class="col-md-4">Carrito</span>
+      <span class="col-md-8">El Vidón de Zanotti</span>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+
+        <table mat-table [dataSource]="productosCarritoSource" class="mat-elevation-z8">
+
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+            <td mat-cell *matCellDef="let element"> {{element.cantidad}} </td>
+            <td mat-footer-cell *matFooterCellDef>Total</td>
+          </ng-container>
+
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef> Código </th>
+            <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <ng-container matColumnDef="precio">
+            <th mat-header-cell *matHeaderCellDef> Precio </th>
+            <td mat-cell *matCellDef="let element"> {{element.precio}} </td>
+            <td mat-footer-cell *matFooterCellDef>{{calcularTotalCarrito() + "$"}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="opciones" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element; let i = index">
+              <mat-icon (click)="sacarDelCarrito(i)">remove</mat-icon>
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              <mat-icon (click)="confirmarCompra()">done_outline</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="headersCarrito"></tr>
+          <tr mat-row *matRowDef="let row; columns: headersCarrito;"></tr>
+          <tr mat-footer-row *matFooterRowDef="headersCarrito"></tr>
+        </table>
+      </div>
+
+      <div class="col-md-8">
+
+        <table mat-table [dataSource]="productosComercioAdheridoSource" class="mat-elevation-z8">
+
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef> Código </th>
+            <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="precio">
+            <th mat-header-cell *matHeaderCellDef> Precio </th>
+            <td mat-cell *matCellDef="let element"> {{element.precio}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="opciones" stickyEnd>
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon (click)="agregarAlCarrito(element)">add</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="headersComercioAdherido"></tr>
+          <tr mat-row *matRowDef="let row; columns: headersComercioAdherido;"></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div *ngIf="aCompra">
+  <div class="row" style="justify-content:space-between">
+    <h4>
+      Completá los datos de tu compra!
+    </h4>
+    <button style="margin-right: 30px" (click)="cancelarCompra()" mat-raised-button>
+      Cancelar compra
+    </button>
+  </div>
+  <mat-horizontal-stepper [linear]="isLinear" #stepper>
+    <mat-step [stepControl]="stepOneFormGroup">
+      <form [formGroup]="stepOneFormGroup">
+        <div class="row">
+          <h6>
+            Indicá donde queres recibir tu compra:
+          </h6>
+        </div>
+        <div class="row">
+          <mat-form-field style="width: 600px; margin-right: 10px">
+            <input matInput formControlName="calle" placeholder="Calle" required>
+          </mat-form-field>
+          <mat-form-field style="width: 100px; margin-right: 310px">
+            <input matInput type="number" formControlName="numero" placeholder="Número" required>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Ciudad</mat-label>
+            <mat-select formControlName="ciudad">
+              <mat-option [value]="'Cordoba'">
+                Córdoba
+              </mat-option>
+              <mat-option [value]="'Río Cuarto'">
+                Río Cuarto
+              </mat-option>
+              <mat-option [value]="'Bellville'">
+                Bellville
+              </mat-option>
+              <mat-option [value]="'Carlos Paz'">
+                Carlos Paz
+              </mat-option>
+              <mat-option [value]="'Villa Allende'">
+                Villa Allende
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="row">
+          <mat-form-field style="width: 1200px">
+            <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="referencia"
+              placeholder="Referencia" required></textarea>
+          </mat-form-field>
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <button mat-button [disabled]="stepOneFormGroup.invalid" matStepperNext>Siguiente</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="stepTwoFormGroup">
+      <form [formGroup]="stepTwoFormGroup">
+        <div>
+          <div class="row">
+            <h6>
+              Ahora, contanos cuando queres recibirla:
+            </h6>
+          </div>
+          <mat-radio-group formControlName="fechaEntregaRadio" aria-label="¿Cuando desea recibir su pedido?">
+            <div class="row">
+              <mat-radio-button value="antes">Lo antes posible</mat-radio-button>
+            </div>
+            <div class="row" style="align-items: center">
+              <mat-radio-button value="fecha" style="margin-right: 10px">Fecha: </mat-radio-button>
+              <input formControlName="fechaEntregaDtp" [min]="min" readonly="readonly"
+                [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value != 'fecha'" [owlDateTime]="dt1"
+                [owlDateTimeTrigger]="dt1" placeholder="Date Time">
+              <owl-date-time #dt1></owl-date-time>
+              <input disabled readonly="readonly"
+                [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha'">
+            </div>
+          </mat-radio-group>
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <button mat-button matStepperPrevious>Volver</button>
+          <button mat-button [disabled]="!stepTwoFormGroup.controls.fechaEntregaRadio.value ||
+          (stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha' && 
+          !stepTwoFormGroup.controls.fechaEntregaDtp.value)" matStepperNext>Siguiente</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="stepThreeFormGroup">
+      <div>
+        <h4>
+          Ya casi...
+        </h4>
+        <h6>
+          Detalle de la compra
+        </h6>
+        <div>
+          <table mat-table [dataSource]="productosCarritoSource" class="mat-elevation-z8">
+            <ng-container matColumnDef="cantidad">
+              <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+              <td mat-cell *matCellDef="let element"> {{element.cantidad}} </td>
+              <td mat-footer-cell *matFooterCellDef>Total</td>
+            </ng-container>
+
+            <ng-container matColumnDef="codigo">
+              <th mat-header-cell *matHeaderCellDef> Código </th>
+              <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="nombre">
+              <th mat-header-cell *matHeaderCellDef> Nombre </th>
+              <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="precio">
+              <th mat-header-cell *matHeaderCellDef> Precio </th>
+              <td mat-cell *matCellDef="let element"> {{element.precio}} </td>
+              <td mat-footer-cell *matFooterCellDef>{{calcularTotalCarrito() + "$"}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="opciones" stickyEnd>
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element; let i = index">
+              </td>
+              <td mat-footer-cell *matFooterCellDef>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="headersCarrito"></tr>
+            <tr mat-row *matRowDef="let row; columns: headersCarrito;"></tr>
+            <tr mat-footer-row *matFooterRowDef="headersCarrito"></tr>
+          </table>
+          <!--Nota: Se debe seleccionar la forma de pago: Efectivo o Tarjeta VISA,
+            en caso de haber seleccionado pago en Efectivo el monto con el que va a pagar.
+            En caso de seleccionar Tarjeta VISA debe ingresar el número de la tarjeta,
+            nombre y apellido del Titular, fecha de vencimiento (MM/AAAA) y CVC. -->
+
+        </div>
+        <h6 style="margin-top: 30px">
+          Completá con los datos del pago
+        </h6>
+        <form [formGroup]="stepThreeFormGroup">
+          <mat-radio-group formControlName="formaDePago">
+            <div class="row">
+              <mat-radio-button value="VISA">Tarjeta VISA</mat-radio-button>
+            </div>
+            <mat-radio-button value="efectivo" style="margin-right: 10px">Efectivo </mat-radio-button>
+          </mat-radio-group>
+          <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'efectivo'">
+            $<mat-form-field>
+              <input [min]="calcularTotalCarrito()" matInput type="number" formControlName="montoAbonar"
+                placeholder="Monto">
+            </mat-form-field>
+          </div>
+          <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'efectivo'">
+
+          </div>
+        </form>
+        <div class="row" style="justify-content:flex-end">
+          <button mat-button matStepperPrevious>Volver</button>
+          <button mat-button [disabled]="!(stepThreeFormGroup.controls.formaDePago.value == 'VISA' || stepThreeFormGroup.controls.formaDePago.value == 'efectivo')
+          || (stepThreeFormGroup.controls.formaDePago.value == 'efectivo'
+          && stepThreeFormGroup.controls.montoAbonar.invalid )" (click)="finalizarCompra()">Confirmar Compra</button>
+        </div>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>

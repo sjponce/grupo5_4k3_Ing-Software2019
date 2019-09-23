@@ -1,0 +1,34 @@
+table {
+    width: 100%;
+  }
+
+  mat-button-toggle-group {
+    margin-left: 12px;
+    color: white;
+  }
+
+  .row{
+    margin-left:0;
+  }
+
+  .mat-column-opciones {
+    width: 10% !important;
+    }
+
+  mat-icon{
+    cursor: pointer;
+  }
+
+  .margin-block{
+    margin: 30px;
+    border: 2px solid grey;
+    border-radius: 10px;
+    padding: 10px; 
+  }
+
+  .margin-form-block{
+    margin: 5px;
+    border: 2px solid grey;
+    border-radius: 10px;
+    padding: 10px; 
+  }
