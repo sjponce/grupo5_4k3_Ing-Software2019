@@ -16,20 +16,20 @@ export class AppComponent implements OnInit {
   constructor() { }
   public map: any;
   public marker: any;
-  locationSelected = false;
-  archivoActual: boolean = false;
-  stepOneFormGroup: FormGroup;
-  stepOneFormGroupNA: FormGroup;
-  stepTwoFormGroupNA: FormGroup;
-  stepThreeFormGroupNA: FormGroup;
-  stepTwoFormGroup: FormGroup;
-  stepThreeFormGroup: FormGroup;
-  comercioNoAdheridoForm: FormGroup;
-  comercioNoAdheridoForm2: FormGroup;
-  _formBuilder: FormBuilder = new FormBuilder()
-  headersComercioAdherido = ["codigo", "nombre", "precio", 'opciones'];
-  min = new Date();
-  productosComercioAdherido = [
+  public locationSelected: boolean = false;
+  public archivoActual: boolean = false;
+  public stepOneFormGroup: FormGroup;
+  public stepOneFormGroupNA: FormGroup;
+  public stepTwoFormGroupNA: FormGroup;
+  public stepThreeFormGroupNA: FormGroup;
+  public stepTwoFormGroup: FormGroup;
+  public stepThreeFormGroup: FormGroup;
+  public comercioNoAdheridoForm: FormGroup;
+  public comercioNoAdheridoForm2: FormGroup;
+  private _formBuilder: FormBuilder = new FormBuilder()
+  public headersComercioAdherido: st:booleanring[] = ["codigo", "nombre", "precio", 'opciones'];
+  public min = new Date();
+  public productosComercioAdherido: any[] = [
     {
       codigo: "AAAA",
       nombre: "Pepsi 350ml",
@@ -46,16 +46,16 @@ export class AppComponent implements OnInit {
       precio: 150
     }
   ];
-  productosComercioAdheridoSource = new MatTableDataSource(this.productosComercioAdherido);
-  headersCarrito = ["cantidad", "codigo", "nombre", "precio", "opciones"];
-  productosCarrito = [];
-  productosCarritoSource = new MatTableDataSource(this.productosCarrito);
-  aCompra = false;
-  aCompraNA = false;
-  isLinear = true;
-  anios = [];
-  meses = [];
-  mapShow = false;
+  public productosComercioAdheridoSource = new MatTableDataSource(this.productosComercioAdherido);
+  public headersCarrito: string[] = ["cantidad", "codigo", "nombre", "precio", "opciones"];
+  public productosCarrito: any[] = [];
+  public productosCarritoSource = new MatTableDataSource(this.productosCarrito);
+  public aCompra:boolean = false;
+  public aCompraNA:boolean = false;
+  public isLinear:boolean = true;
+  public anios: any[] = [];
+  public meses: any[] = [];
+  public mapShow:boolean = false;
   ngOnInit() {
     initMap()
 

@@ -6,13 +6,14 @@
     <h6>
       Elegí alguno de nuestros comercios o decidite por otro
     </h6>
-    
+    <!-- selector de tipo de compra -->
     <mat-button-toggle-group #comercioAdheridoGroup="matButtonToggleGroup">
       <mat-button-toggle value="true">Comercio adherido</mat-button-toggle>
       <mat-button-toggle (click)="generateForm()" value="false">Comercio no adherido</mat-button-toggle>
     </mat-button-toggle-group>
     
     <div *ngIf="comercioAdheridoGroup.value == 'true'">
+      <!-- caso comercio adherido, simulacion de carrito -->
       <div class="row">
       <span class="col-md-4">Carrito</span>
       <span class="col-md-8">El Vidón de Zanotti</span>
@@ -97,10 +98,7 @@
   </div>
 </div>
   <div [hidden]="!aCompraNA">
-    <!-- Nota: Se debe indicar qué debe buscar el Cadete con un campo de texto
-Nota: Se puede adjuntar opcionalmente una foto en formato JPG con un tamaño máximo de 5 MB.
-Nota: Se debe indicar la dirección del comercio en forma textual (calle, número, ciudad y referencia opcional en formato de texto) 
-o seleccionando un punto en un mapa interactivo de Google Maps. -->
+    <!-- caso comercio no adherido, todos los steps -->
 <div class="row" style="justify-content:space-between">
     <h4>
       Completá los datos de tu compra!
@@ -115,7 +113,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
         <button mat-button (click)="confirmLocation()">Confirmar</button>
       </div>
   <div [hidden]="mapShow">
-
+<!-- step 1 -->
       <mat-horizontal-stepper [linear]="isLinear" #stepperNoAd>
       <mat-step [stepControl]="comercioNoAdheridoForm">
         <form [formGroup]="comercioNoAdheridoForm">
@@ -146,6 +144,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
             </div>
         </form>
       </mat-step>
+      <!-- step 2 -->
       <mat-step [stepControl]="comercioNoAdheridoForm23s">
         <form [formGroup]="comercioNoAdheridoForm2">
           <div style="margin-top:20px;margin-bottom:20px" class="row">
@@ -198,6 +197,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
               </div>
             </form>
           </mat-step>
+          <!-- step 3 -->
       <mat-step [stepControl]="stepOneFormGroupNA">
         <form [formGroup]="stepOneFormGroupNA">
           <div class="row">
@@ -250,7 +250,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
               
          
           </mat-step>
-          
+          <!-- step 4 -->
           <mat-step [stepControl]="stepTwoFormGroupNA123">
             <form [formGroup]="stepTwoFormGroupNA">
               <div>
@@ -282,6 +282,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
                   </div>
                 </form>
               </mat-step>
+              <!-- step 5 -->
               <mat-step [stepControl]="stepThreeFormGroup">
                 <div>
                   <h6 style="margin-top: 30px">
@@ -363,6 +364,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
 </div>
 </div>
 <div *ngIf="aCompra">
+  <!-- caso confirmar la compra comercio adherido -->
   <div class="row" style="justify-content:space-between">
       <h4>
         Completá los datos de tu compra!
@@ -371,6 +373,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
           Cancelar compra
         </button>
       </div>
+      <!-- step 1 -->
       <mat-horizontal-stepper [linear]="isLinear" #stepper>
         <mat-step [stepControl]="stepOneFormGroup">
           <form [formGroup]="stepOneFormGroup">
@@ -421,6 +424,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
               </div>
             </form>
           </mat-step>
+          <!-- step 2 -->
           <mat-step [stepControl]="stepTwoFormGroup123">
             <form [formGroup]="stepTwoFormGroup">
               <div>
@@ -453,6 +457,7 @@ o seleccionando un punto en un mapa interactivo de Google Maps. -->
                   </div>
                 </form>
               </mat-step>
+              <!-- step 3 -->
               <mat-step [stepControl]="stepThreeFormGroup">
                 <div>
                   <h4>
