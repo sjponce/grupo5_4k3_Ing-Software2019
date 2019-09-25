@@ -1,16 +1,19 @@
-<h1 (click)="click()">DeliverEat!</h1>
+<h1 (click)="click2()">DeliverEat!</h1>
 
-<div *ngIf="!aCompra">
-  <h6>
-    Elegí alguno de nuestros comercios o decidite por otro
-  </h6>
-
-  <mat-button-toggle-group #comercioAdheridoGroup="matButtonToggleGroup">
-    <mat-button-toggle value="true">Comercio adherido</mat-button-toggle>
-    <mat-button-toggle value="false">Comercio no adherido</mat-button-toggle>
-  </mat-button-toggle-group>
-  <div *ngIf="comercioAdheridoGroup.value == 'true'">
-    <div class="row">
+<div [hidden]="aCompra">
+  <div [hidden]="aCompraNA">
+    
+    <h6>
+      Elegí alguno de nuestros comercios o decidite por otro
+    </h6>
+    
+    <mat-button-toggle-group #comercioAdheridoGroup="matButtonToggleGroup">
+      <mat-button-toggle value="true">Comercio adherido</mat-button-toggle>
+      <mat-button-toggle (click)="generateForm()" value="false">Comercio no adherido</mat-button-toggle>
+    </mat-button-toggle-group>
+    
+    <div *ngIf="comercioAdheridoGroup.value == 'true'">
+      <div class="row">
       <span class="col-md-4">Carrito</span>
       <span class="col-md-8">El Vidón de Zanotti</span>
     </div>
@@ -93,172 +96,486 @@
 
   </div>
 </div>
-<div *ngIf="aCompra">
-  <div class="row" style="justify-content:space-between">
+  <div [hidden]="!aCompraNA">
+    <!-- Nota: Se debe indicar qué debe buscar el Cadete con un campo de texto
+Nota: Se puede adjuntar opcionalmente una foto en formato JPG con un tamaño máximo de 5 MB.
+Nota: Se debe indicar la dirección del comercio en forma textual (calle, número, ciudad y referencia opcional en formato de texto) 
+o seleccionando un punto en un mapa interactivo de Google Maps. -->
+<div class="row" style="justify-content:space-between">
     <h4>
       Completá los datos de tu compra!
     </h4>
     <button style="margin-right: 30px" (click)="cancelarCompra()" mat-raised-button>
-      Cancelar compra
-    </button>
-  </div>
-  <mat-horizontal-stepper [linear]="isLinear" #stepper>
-    <mat-step [stepControl]="stepOneFormGroup">
-      <form [formGroup]="stepOneFormGroup">
-        <div class="row">
-          <h6>
-            Indicá donde queres recibir tu compra:
-          </h6>
-        </div>
-        <div class="row">
-          <mat-form-field style="width: 600px; margin-right: 10px">
-            <input matInput formControlName="calle" placeholder="Calle" required>
-          </mat-form-field>
-          <mat-form-field style="width: 100px; margin-right: 310px">
-            <input matInput type="number" formControlName="numero" placeholder="Número" required>
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Ciudad</mat-label>
-            <mat-select formControlName="ciudad">
-              <mat-option [value]="'Cordoba'">
-                Córdoba
-              </mat-option>
-              <mat-option [value]="'Río Cuarto'">
-                Río Cuarto
-              </mat-option>
-              <mat-option [value]="'Bellville'">
-                Bellville
-              </mat-option>
-              <mat-option [value]="'Carlos Paz'">
-                Carlos Paz
-              </mat-option>
-              <mat-option [value]="'Villa Allende'">
-                Villa Allende
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="row">
-          <mat-form-field style="width: 1200px">
-            <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="referencia"
-              placeholder="Referencia" required></textarea>
-          </mat-form-field>
-        </div>
-        <div class="row" style="justify-content:flex-end">
-          <button mat-button [disabled]="stepOneFormGroup.invalid" matStepperNext>Siguiente</button>
-        </div>
-      </form>
-    </mat-step>
-    <mat-step [stepControl]="stepTwoFormGroup">
-      <form [formGroup]="stepTwoFormGroup">
-        <div>
+        Cancelar compra
+      </button>
+    </div>
+    <div [hidden]="!mapShow">
+        <div id="mapa" style="width: 500px; height: 400px;"> </div>
+        <button mat-button (click)="toggleMap()">Cancelar</button>
+        <button mat-button (click)="confirmLocation()">Confirmar</button>
+      </div>
+  <div [hidden]="mapShow">
+
+      <mat-horizontal-stepper [linear]="isLinear" #stepperNoAd>
+      <mat-step [stepControl]="comercioNoAdheridoForm">
+        <form [formGroup]="comercioNoAdheridoForm">
+          
           <div class="row">
             <h6>
-              Ahora, contanos cuando queres recibirla:
+              Indicá los datos de tu pedido:
             </h6>
           </div>
-          <mat-radio-group formControlName="fechaEntregaRadio" aria-label="¿Cuando desea recibir su pedido?">
+          <div class="row">
+            <mat-form-field style="width: 800px">
+                <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="detalleCompra"
+                placeholder="Descripción del producto" required></textarea>
+                <mat-error>Ingrese una descripción del producto</mat-error>
+              </mat-form-field>
+            </div>
             <div class="row">
-              <mat-radio-button value="antes">Lo antes posible</mat-radio-button>
+              <span style="color: grey; margin-right: 20px">Foto: </span>
+              <input type="file" name="file-1[]" id="file-1" (change)="archivoSeleccionado($event)"
+              class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple #selectedPicture />
+              <mat-icon [hidden]="archivoActual == false" (click)="clearSelectedPicture()">close</mat-icon>
             </div>
-            <div class="row" style="align-items: center">
-              <mat-radio-button value="fecha" style="margin-right: 10px">Fecha: </mat-radio-button>
-              <input formControlName="fechaEntregaDtp" [min]="min" readonly="readonly"
-                [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value != 'fecha'" [owlDateTime]="dt1"
-                [owlDateTimeTrigger]="dt1" placeholder="Date Time">
-              <owl-date-time #dt1></owl-date-time>
-              <input disabled readonly="readonly"
-                [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha'">
+          <div class="row">
+            <span style="color: grey; font-style: italic; font-size: 10px">Solo se aceptan archivos formato JPG</span>
+          </div>
+          <div class="row" style="justify-content:flex-end">
+              <button mat-button [disabled]="comercioNoAdheridoForm?.invalid" matStepperNext>Siguiente</button>
             </div>
-          </mat-radio-group>
-        </div>
-        <div class="row" style="justify-content:flex-end">
-          <button mat-button matStepperPrevious>Volver</button>
-          <button mat-button [disabled]="!stepTwoFormGroup.controls.fechaEntregaRadio.value ||
-          (stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha' && 
-          !stepTwoFormGroup.controls.fechaEntregaDtp.value)" matStepperNext>Siguiente</button>
-        </div>
-      </form>
-    </mat-step>
-    <mat-step [stepControl]="stepThreeFormGroup">
-      <div>
-        <h4>
-          Ya casi...
-        </h4>
-        <h6>
-          Detalle de la compra
-        </h6>
-        <div>
-          <table mat-table [dataSource]="productosCarritoSource" class="mat-elevation-z8">
-            <ng-container matColumnDef="cantidad">
-              <th mat-header-cell *matHeaderCellDef> Cantidad </th>
-              <td mat-cell *matCellDef="let element"> {{element.cantidad}} </td>
-              <td mat-footer-cell *matFooterCellDef>Total</td>
-            </ng-container>
-
-            <ng-container matColumnDef="codigo">
-              <th mat-header-cell *matHeaderCellDef> Código </th>
-              <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
-              <td mat-footer-cell *matFooterCellDef></td>
-            </ng-container>
-
-            <ng-container matColumnDef="nombre">
-              <th mat-header-cell *matHeaderCellDef> Nombre </th>
-              <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-              <td mat-footer-cell *matFooterCellDef></td>
-            </ng-container>
-
-            <ng-container matColumnDef="precio">
-              <th mat-header-cell *matHeaderCellDef> Precio </th>
-              <td mat-cell *matCellDef="let element"> {{element.precio}} </td>
-              <td mat-footer-cell *matFooterCellDef>{{calcularTotalCarrito() + "$"}}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="opciones" stickyEnd>
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let element; let i = index">
-              </td>
-              <td mat-footer-cell *matFooterCellDef>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="headersCarrito"></tr>
-            <tr mat-row *matRowDef="let row; columns: headersCarrito;"></tr>
-            <tr mat-footer-row *matFooterRowDef="headersCarrito"></tr>
-          </table>
-          <!--Nota: Se debe seleccionar la forma de pago: Efectivo o Tarjeta VISA,
-            en caso de haber seleccionado pago en Efectivo el monto con el que va a pagar.
-            En caso de seleccionar Tarjeta VISA debe ingresar el número de la tarjeta,
-            nombre y apellido del Titular, fecha de vencimiento (MM/AAAA) y CVC. -->
-
-        </div>
-        <h6 style="margin-top: 30px">
-          Completá con los datos del pago
-        </h6>
-        <form [formGroup]="stepThreeFormGroup">
-          <mat-radio-group formControlName="formaDePago">
-            <div class="row">
-              <mat-radio-button value="VISA">Tarjeta VISA</mat-radio-button>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="comercioNoAdheridoForm23s">
+        <form [formGroup]="comercioNoAdheridoForm2">
+          <div style="margin-top:20px;margin-bottom:20px" class="row">
+              <h6>
+                Indicá los datos del establecimiento o seleccionalo en el mapa:
+              </h6>
             </div>
-            <mat-radio-button value="efectivo" style="margin-right: 10px">Efectivo </mat-radio-button>
-          </mat-radio-group>
-          <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'efectivo'">
-            $<mat-form-field>
-              <input [min]="calcularTotalCarrito()" matInput type="number" formControlName="montoAbonar"
-                placeholder="Monto">
+            <button mat-button class="flex-end" (click)="toggleMap()">Abrir mapa</button>
+            <button mat-button class="flex-end" (click)="deleteLocation()">Borrar ubicación</button>
+            <div>
+              <mat-form-field style="width: 600px; margin-right: 10px">
+                <input matInput formControlName="calle" placeholder="Calle" required>
+                <mat-error>Ingrese una calle valida</mat-error>
+              </mat-form-field>
+              <mat-form-field style="width: 100px; margin-right: 310px">
+                  <input matInput type="number" formControlName="numero" placeholder="Número" required>
+                  <mat-error>Ingrese un numero valido</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Ciudad</mat-label>
+                  <mat-select formControlName="ciudad" required>
+                    <mat-option [value]="'Cordoba'">
+                      Córdoba
+                    </mat-option>
+                    <mat-option [value]="'Río Cuarto'">
+                      Río Cuarto
+                    </mat-option>
+                    <mat-option [value]="'Bellville'">
+                      Bellville
+                </mat-option>
+                <mat-option [value]="'Carlos Paz'">
+                  Carlos Paz
+                </mat-option>
+                <mat-option [value]="'Villa Allende'">
+                  Villa Allende
+                </mat-option>
+              </mat-select>
+              <mat-error>Seleccione una opción</mat-error>
             </mat-form-field>
           </div>
-          <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'efectivo'">
-
+          <div class="row">
+            <mat-form-field style="width: 1200px">
+                <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="referencia"
+                placeholder="Referencia"></textarea>
+              </mat-form-field>
+            </div>
+            <div style="justify-content:flex-end" class="row">
+                <button mat-button matStepperPrevious>Volver</button>
+                <button mat-button [disabled]="comercioNoAdheridoForm2?.invalid && !locationSelected"  matStepperNext>Siguiente</button>
+              </div>
+            </form>
+          </mat-step>
+      <mat-step [stepControl]="stepOneFormGroupNA">
+        <form [formGroup]="stepOneFormGroupNA">
+          <div class="row">
+            <h6>
+              Indicá donde queres recibir tu compra:
+            </h6>
           </div>
-        </form>
-        <div class="row" style="justify-content:flex-end">
-          <button mat-button matStepperPrevious>Volver</button>
-          <button mat-button [disabled]="!(stepThreeFormGroup.controls.formaDePago.value == 'VISA' || stepThreeFormGroup.controls.formaDePago.value == 'efectivo')
-          || (stepThreeFormGroup.controls.formaDePago.value == 'efectivo'
-          && stepThreeFormGroup.controls.montoAbonar.invalid )" (click)="finalizarCompra()">Confirmar Compra</button>
+          <div class="row">
+            <mat-form-field style="width: 600px; margin-right: 10px">
+                <input matInput formControlName="calle" placeholder="Calle" required>
+                <mat-error>Ingrese una calle valida</mat-error>
+              </mat-form-field>
+              <mat-form-field style="width: 100px; margin-right: 310px">
+                  <input matInput type="number" formControlName="numero" placeholder="Número" required>
+                  <mat-error>Ingrese un numero valido</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Ciudad</mat-label>
+                  <mat-select formControlName="ciudad" required>
+                    <mat-option [value]="'Cordoba'">
+                      Córdoba
+                    </mat-option>
+                    <mat-option [value]="'Río Cuarto'">
+                      Río Cuarto
+                    </mat-option>
+                    <mat-option [value]="'Bellville'">
+                      Bellville
+                    </mat-option>
+                    <mat-option [value]="'Carlos Paz'">
+                      Carlos Paz
+                </mat-option>
+                <mat-option [value]="'Villa Allende'">
+                  Villa Allende
+                </mat-option>
+              </mat-select>
+              <mat-error>Seleccione una opción</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <mat-form-field style="width: 1200px">
+                <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="referencia"
+                placeholder="Referencia"></textarea>
+              </mat-form-field>
+            </div>
+              <div class="row" style="justify-content:flex-end">
+                  <button mat-button matStepperPrevious>Volver</button>
+                  <button mat-button [disabled]="stepOneFormGroupNA?.invalid" matStepperNext>Siguiente</button>
+                </div>
+              </form>
+              
+         
+          </mat-step>
+          
+          <mat-step [stepControl]="stepTwoFormGroupNA123">
+            <form [formGroup]="stepTwoFormGroupNA">
+              <div>
+                <div class="row">
+                  <h6>
+                    Ahora, contanos cuando queres recibirla:
+                  </h6>
+                </div>
+                <mat-radio-group formControlName="fechaEntregaRadio" aria-label="¿Cuando desea recibir su pedido?">
+                  <div class="row">
+                    <mat-radio-button value="antes">Lo antes posible</mat-radio-button>
+                  </div>
+                  <div class="row" style="align-items: center">
+                      <mat-radio-button value="fecha" style="margin-right: 10px">Fecha: </mat-radio-button>
+                      <input formControlName="fechaEntregaDtp" [min]="min" readonly="readonly"
+                      [hidden]="stepTwoFormGroupNA.controls.fechaEntregaRadio.value != 'fecha'" [owlDateTime]="dt1"
+                      [owlDateTimeTrigger]="dt1" placeholder="Date Time">
+                      <owl-date-time #dt1></owl-date-time>
+                      <input disabled readonly="readonly"
+                      [hidden]="stepTwoFormGroupNA.controls.fechaEntregaRadio.value == 'fecha'">
+                    </div>
+                  </mat-radio-group>
+                </div>
+                <div class="row" style="justify-content:flex-end">
+                    <button mat-button matStepperPrevious>Volver</button>
+                    <button mat-button [disabled]="!stepTwoFormGroupNA.controls.fechaEntregaRadio.value ||
+                    (stepTwoFormGroupNA.controls.fechaEntregaRadio.value == 'fecha' && 
+                    !stepTwoFormGroupNA.controls.fechaEntregaDtp.value)" matStepperNext>Siguiente</button>
+                  </div>
+                </form>
+              </mat-step>
+              <mat-step [stepControl]="stepThreeFormGroup">
+                <div>
+                  <h6 style="margin-top: 30px">
+                      Completá con los datos del pago
+                    </h6>
+                    <form [formGroup]="stepThreeFormGroupNA">
+                      <mat-radio-group formControlName="formaDePago">
+                        <div class="row">
+                          <mat-radio-button value="VISA">Tarjeta VISA</mat-radio-button>
+                        </div>
+              <mat-radio-button value="efectivo" style="margin-right: 10px">Efectivo </mat-radio-button>
+            </mat-radio-group>
+            <div *ngIf="stepThreeFormGroupNA.controls.formaDePago.value == 'efectivo'">
+              <mat-form-field>
+                <input [min]="calcularTotalCarrito()" matInput type="number" formControlName="montoAbonar"
+                placeholder="Monto a abonar" required>
+                <span matPrefix>$&nbsp;</span>
+                <mat-error>Ingrese un monto valido</mat-error>
+              </mat-form-field>
+            </div>
+            <div *ngIf="stepThreeFormGroupNA.controls.formaDePago.value == 'VISA'">
+              <div class="row">
+                <mat-form-field style="width: 50%">
+                    <input matInput type="number" formControlName="numeroTarjeta" placeholder="Número de tarjeta">
+                    <mat-error>Ingrese una tarjeta VISA valida</mat-error>
+                    
+                  </mat-form-field>
+                </div>
+                <div class="row">
+                  <mat-form-field style="width: 50%">
+                      <input matInput type="text" formControlName="nombreTarjeta" placeholder="Nombre en la tarjeta">
+                      <mat-error>Ingrese el nombre de la tarjeta</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="row" style="width: 50%; justify-content:space-between">
+                  <mat-form-field>
+                    <input matInput type="text" formControlName="codigoSeguridad" placeholder="Código de seguridad">
+                    <mat-error>Ingrese un numero valido</mat-error>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Mes</mat-label>
+                    <mat-select formControlName="mes">
+                      <mat-option *ngFor="let i of meses" [value]="'i'">
+                        {{i}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>Seleccione una opción</mat-error>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Año</mat-label>
+                  <mat-select formControlName="anio">
+                    <mat-option *ngFor="let i of anios" [value]="'i'">
+                      {{i}}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Seleccione una opción</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </form>
+          <div class="row" style="justify-content:flex-end">
+              <button mat-button matStepperPrevious>Volver</button>
+              <button mat-button [disabled]="!(stepThreeFormGroupNA.controls.formaDePago.value == 'VISA' || stepThreeFormGroupNA.controls.formaDePago.value == 'efectivo')
+          || (stepThreeFormGroupNA.controls.formaDePago.value == 'efectivo'
+          && stepThreeFormGroupNA.controls.montoAbonar?.invalid )
+          || (stepThreeFormGroupNA.controls.formaDePago.value == 'VISA'
+          && (stepThreeFormGroupNA.controls.nombreTarjeta.status == 'INVALID'
+          || stepThreeFormGroupNA.controls.numeroTarjeta.status == 'INVALID'
+          || stepThreeFormGroupNA.controls.codigoSeguridad.status == 'INVALID'
+          || stepThreeFormGroupNA.controls.mes.status == 'INVALID'
+          || stepThreeFormGroupNA.controls.anio.status == 'INVALID'))" (click)="finalizarCompra()">Confirmar
+          Compra</button>
+        </div>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>  
+  
+</div>
+</div>
+<div *ngIf="aCompra">
+  <div class="row" style="justify-content:space-between">
+      <h4>
+        Completá los datos de tu compra!
+      </h4>
+      <button style="margin-right: 30px" (click)="cancelarCompra()" mat-raised-button>
+          Cancelar compra
+        </button>
+      </div>
+      <mat-horizontal-stepper [linear]="isLinear" #stepper>
+        <mat-step [stepControl]="stepOneFormGroup">
+          <form [formGroup]="stepOneFormGroup">
+            <div class="row">
+              <h6>
+                Indicá donde queres recibir tu compra:
+              </h6>
+            </div>
+            <div class="row">
+              <mat-form-field style="width: 600px; margin-right: 10px">
+                  <input matInput formControlName="calle" placeholder="Calle" required>
+                  <mat-error>Ingrese una calle valida</mat-error>
+                </mat-form-field>
+                <mat-form-field style="width: 100px; margin-right: 310px">
+                    <input matInput type="number" formControlName="numero" placeholder="Número" required>
+                    <mat-error>Ingrese un numero valido</mat-error>
+                  </mat-form-field>
+                  <mat-form-field>
+                    <mat-label>Ciudad</mat-label>
+                    <mat-select formControlName="ciudad" required>
+                      <mat-option [value]="'Cordoba'">
+                        Córdoba
+                      </mat-option>
+                      <mat-option [value]="'Río Cuarto'">
+                        Río Cuarto
+                      </mat-option>
+                      <mat-option [value]="'Bellville'">
+                        Bellville
+                      </mat-option>
+                      <mat-option [value]="'Carlos Paz'">
+                  Carlos Paz
+                </mat-option>
+                <mat-option [value]="'Villa Allende'">
+                  Villa Allende
+                </mat-option>
+              </mat-select>
+              <mat-error>Seleccione una opción</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <mat-form-field style="width: 1200px">
+                <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="5" formControlName="referencia"
+                placeholder="Referencia"></textarea>
+              </mat-form-field>
+            </div>
+            <div class="row" style="justify-content:flex-end">
+                <button mat-button [disabled]="stepOneFormGroup?.invalid" matStepperNext>Siguiente</button>
+              </div>
+            </form>
+          </mat-step>
+          <mat-step [stepControl]="stepTwoFormGroup123">
+            <form [formGroup]="stepTwoFormGroup">
+              <div>
+                <div class="row">
+                  <h6>
+                    Ahora, contanos cuando queres recibirla:
+                  </h6>
+                </div>
+                <mat-radio-group formControlName="fechaEntregaRadio" aria-label="¿Cuando desea recibir su pedido?">
+                  <div class="row">
+                    <mat-radio-button value="antes">Lo antes posible</mat-radio-button>
+                  </div>
+                  <div class="row" style="align-items: center">
+                      <mat-radio-button value="fecha" style="margin-right: 10px">Fecha: </mat-radio-button>
+                      <input formControlName="fechaEntregaDtp" [min]="min" readonly="readonly"
+                      [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value != 'fecha'" [owlDateTime]="dt1"
+                      [owlDateTimeTrigger]="dt1" placeholder="Date Time">
+                      <owl-date-time #dt1></owl-date-time>
+                      <input disabled readonly="readonly"
+                      [hidden]="stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha'">
+                    </div>
+                  </mat-radio-group>
+                </div>
+                <div class="row" style="justify-content:flex-end">
+                    <button mat-button matStepperPrevious>Volver</button>
+                    <button mat-button [disabled]="!stepTwoFormGroup.controls.fechaEntregaRadio.value ||
+                    (stepTwoFormGroup.controls.fechaEntregaRadio.value == 'fecha' && 
+                    !stepTwoFormGroup.controls.fechaEntregaDtp.value)
+                    " matStepperNext>Siguiente</button>
+                  </div>
+                </form>
+              </mat-step>
+              <mat-step [stepControl]="stepThreeFormGroup">
+                <div>
+                  <h4>
+                    Ya casi...
+                  </h4>
+                  <h6>
+                    Detalle de la compra
+                  </h6>
+                  <div>
+                    <table mat-table [dataSource]="productosCarritoSource" class="mat-elevation-z8">
+                      <ng-container matColumnDef="cantidad">
+                        <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+                        <td mat-cell *matCellDef="let element"> {{element.cantidad}} </td>
+                        <td mat-footer-cell *matFooterCellDef>Total</td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="codigo">
+                        <th mat-header-cell *matHeaderCellDef> Código </th>
+                        <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+                        <td mat-footer-cell *matFooterCellDef></td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="nombre">
+                        <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                        <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                        <td mat-footer-cell *matFooterCellDef></td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="precio">
+                        <th mat-header-cell *matHeaderCellDef> Precio </th>
+                        <td mat-cell *matCellDef="let element"> {{element.precio}} </td>
+                        <td mat-footer-cell *matFooterCellDef>{{calcularTotalCarrito() + "$"}}</td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="opciones" stickyEnd>
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element; let i = index">
+                        </td>
+                <td mat-footer-cell *matFooterCellDef>
+                </td>
+              </ng-container>
+              
+              <tr mat-header-row *matHeaderRowDef="headersCarrito"></tr>
+              <tr mat-row *matRowDef="let row; columns: headersCarrito;"></tr>
+              <tr mat-footer-row *matFooterRowDef="headersCarrito"></tr>
+            </table>
+          </div>
+          <h6 style="margin-top: 30px">
+              Completá con los datos del pago
+            </h6>
+            <form [formGroup]="stepThreeFormGroup">
+              <mat-radio-group formControlName="formaDePago">
+                <div class="row">
+                  <mat-radio-button value="VISA">Tarjeta VISA</mat-radio-button>
+                </div>
+                <mat-radio-button value="efectivo" style="margin-right: 10px">Efectivo </mat-radio-button>
+              </mat-radio-group>
+              <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'efectivo'">
+                <mat-form-field>
+                  <input [min]="calcularTotalCarrito()" matInput type="number" formControlName="montoAbonar"
+                  placeholder="Monto a abonar" required>
+                  <span matPrefix>$&nbsp;</span>
+                  <mat-error>Ingrese un monto valido</mat-error>
+                </mat-form-field>
+              </div>
+              <div *ngIf="stepThreeFormGroup.controls.formaDePago.value == 'VISA'">
+                <div class="row">
+                  <mat-form-field style="width: 50%">
+                      <input matInput type="number" formControlName="numeroTarjeta" placeholder="Número de tarjeta">
+                      <mat-error>Ingrese una tarjeta VISA valida</mat-error>
+                      
+                    </mat-form-field>
+                  </div>
+                  <div class="row">
+                    <mat-form-field style="width: 50%">
+                        <input matInput type="text" formControlName="nombreTarjeta" placeholder="Nombre en la tarjeta">
+                        <mat-error>Ingrese el nombre de la tarjeta</mat-error>
+                      </mat-form-field>
+                    </div>
+                    <div class="row" style="width: 50%; justify-content:space-between">
+                        <mat-form-field>
+                          <input matInput type="text" formControlName="codigoSeguridad" placeholder="Código de seguridad">
+                  <mat-error>Ingrese un numero valido</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Mes</mat-label>
+                  <mat-select formControlName="mes">
+                    <mat-option *ngFor="let i of meses" [value]="'i'">
+                      {{i}}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Seleccione una opción</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Año</mat-label>
+                  <mat-select formControlName="anio">
+                    <mat-option *ngFor="let i of anios" [value]="'i'">
+                      {{i}}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Seleccione una opción</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </form>
+          <div class="row" style="justify-content:flex-end">
+              <button mat-button matStepperPrevious>Volver</button>
+              <button mat-button [disabled]="!(stepThreeFormGroup.controls.formaDePago.value == 'VISA' || stepThreeFormGroup.controls.formaDePago.value == 'efectivo')
+              || (stepThreeFormGroup.controls.formaDePago.value == 'efectivo'
+              && stepThreeFormGroup.controls.montoAbonar?.invalid )
+              || (stepThreeFormGroup.controls.formaDePago.value == 'VISA'
+              && (stepThreeFormGroup.controls.nombreTarjeta.status == 'INVALID'
+              || stepThreeFormGroup.controls.numeroTarjeta.status == 'INVALID'
+              || stepThreeFormGroup.controls.codigoSeguridad.status == 'INVALID'
+          || stepThreeFormGroup.controls.mes.status == 'INVALID'
+          || stepThreeFormGroup.controls.anio.status == 'INVALID'))" (click)="finalizarCompra()">Confirmar
+          Compra</button>
         </div>
       </div>
     </mat-step>
   </mat-horizontal-stepper>
 </div>
+
+
+
+
