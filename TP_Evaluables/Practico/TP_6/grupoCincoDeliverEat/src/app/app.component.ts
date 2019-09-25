@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   public comercioNoAdheridoForm: FormGroup;
   public comercioNoAdheridoForm2: FormGroup;
   private _formBuilder: FormBuilder = new FormBuilder()
-  public headersComercioAdherido: st:booleanring[] = ["codigo", "nombre", "precio", 'opciones'];
+  public headersComercioAdherido: string[] = ["codigo", "nombre", "precio", 'opciones'];
   public min = new Date();
   public productosComercioAdherido: any[] = [
     {
