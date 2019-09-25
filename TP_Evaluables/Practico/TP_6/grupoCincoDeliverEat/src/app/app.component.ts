@@ -153,10 +153,6 @@ export class AppComponent implements OnInit {
   }
 
   finalizarCompra() {
-   /*  this.aCompra = false;
-    this.aCompraNA = false;
-    this.productosCarrito = [];
-    this.refreshProductosCarrito(); */
     alert("Su pedido se realizo exitósamente!");
     location.reload()
   }
